@@ -84,4 +84,36 @@ Node输出
 
 ## JavaScript模块化
 
-模块化规范：AMD、CMD、CommonJS
+### 模块化规范
+
+- ### AMD
+
+- ### CMD
+
+- ### CommonJS
+
+立即函数调用表达式（IIFE）`(function(){})()`
+
+
+
+### CommonJS
+
+- 每一个js文件都是一个单独的模块
+
+- 核心变量：<font style="color:red">Node中真正导出的是**`module.export`**，不是`exports `</font> 
+
+  - **exports** 导出
+    - `exports`默认为空对象`{}`，
+  - **module.exports** 导出
+    - 每一个js文件都是一个Module对象
+    - exports与module.exports的关系
+      - 关系：NodeJS默认是`module.exports = exports`
+        - `module.exports = exports`在模块顶层执行
+      - `module.exports`是`exports`的一个引用
+
+  
+
+  - **require** 导入
+
+
+
