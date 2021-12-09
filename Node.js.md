@@ -99,8 +99,9 @@ Node输出
 #### CommonJS
 
 - 每一个js文件都是一个单独的模块
-
 - 加载过程是运行时加载并且是**同步**的
+
+##### 核心变量
 
 - 核心变量：<font >Node中真正导出的是**`module.export`**，不是`exports `</font> 
 
@@ -150,6 +151,8 @@ Node输出
 
            > 1. 先在当前文件目录下查找`node_modules`文件
            > 2. 然后逐级查找`node_modules`文件，直到根目录下
+
+##### CommonJS模块的加载过程
 
 - CommonJS模块的加载过程
 
@@ -258,11 +261,17 @@ import('./modules/foo.js')
   - 模块环境记录会和变量进行绑定（binding），并且时实时绑定，在导入时是实时获取到最新的变量
   - 但如果导出的是一个对象，那么main.js中是可以修改对象的属性的，它们执行同意内存地址
 
-  ![](F:\coding\Git\md\imgs\NodeJS\ES Module加载过程.png)
+  ![](\imgs\NodeJS\ES Module加载过程.png)
 
+##### ESModule和CommonJS交互
 
-
-
+- 通常情况，CommonJS不能加载ES Module
+  1. 因为CommonJS是同步加载的，但是ES Module必须经过静态分析等，
+  2. 某些平台可以实现此加载方式
+  3. Node中不支持
+- 大多情况下，ES Module可以加载CommonJS
+  1. ES Module在加载CommonJS时，会将其module.exports导出的内容作为default导出方式来使用
+  2. 目前webpack、Node新版本中是支持的
 
 
 
@@ -278,3 +287,115 @@ import('./modules/foo.js')
 - 也是应用在浏览器的一种模块化规范
 - 采用**异步**加载模块，将吸取CommonJS的优点
 
+
+
+## 内置模块
+
+### path
+
+- `path.dirname(path)`：获取文件的父文件夹
+- `path.basepath(path)`：获取文件名
+- `path.extname(path)`：获取文件扩展名
+- `path.join([...path])`：直接拼接路径
+- `path.resolve([...path])`：将问价和某个文件夹拼接，`resolve`函数会判断路径中是否有`'/'`或`./`或`../`
+  - 如果是绝对路径，返回队形的拼接路径
+  - 如果没有，则会和**当前执行文件所在的文件夹**进行路径的拼接
+
+### fs
+
+> FIle System 文件系统
+
+#### 三种操作方式
+
+1. 同步操作文件：代码会被阻塞，不会继续执行
+2. 异步回调函数操作文件：代码不会被阻塞，需要传入callback，获取到当前结果时回调函数被执行
+3. 异步Promise操作文件：代码不会被阻塞，通过fs.promises调用方法操作，会返回一个Promise
+
+#### 相关API
+
+- 获取文件状态
+
+  ```js
+  const fs = require('fs')
+  const fsPath = './abc.txt'
+  // 方式一：同步操作文件
+  const info = fs.statSync(fsPath)
+  console.log(info)
+  // 方式二：异步回调函数操作文件
+  fs.stat( fsPath, (err, info) => {
+      if(err){ console.log(err) }
+      console.log(info)
+  })
+  // 方式三：异步Promise操作文件
+  fs.promises.stat(fsPath).then( info => { 
+  	console.log(info)
+   }).catch( err => {
+  	console.log(err)
+  })
+  ```
+
+  补充：
+
+  1. 判断是否为文件：isFile()   true|false
+  2. 判断是否为文件夹：isDirectory()   true|false
+
+  
+
+- 文件描述符 (File descriptors)
+
+  - 可移植操作系统接口（英语：Portable Operating System Interface，缩写为POSIX） 
+
+    1. Linux和Mac OS都实现了POSIX接口
+    2. Window部分电脑实现了POSIX接口
+
+  - 在POSIX系统上，对于每个进程，内核都维护着一张当前打开这的文件和资源的表格
+
+  - Node.js抽象出操作系统之间的特定差异，并为所有打开的文件分配一个数字型的**文件描述符**
+
+  - 使用 `fs.open()`方法用于分配新的文件描述符
+
+    可以通过文件描述符 `fd`读取文件数据、写入数据、请求关于文件的信息
+
+    ```js
+    fs.open('./abc.txt', ( err, fd ) => {
+        if( err ){ console.log(err); return  }
+    // 传入 fd    
+        fs.fstat(fd, (err, info)=>{ console.log(info) })
+    })
+    ```
+
+
+
+
+- 文件的读写
+  1. 写入：`fs.writeFile(file, data[, options], callback)`
+     - `path` string   (filename or file descriptor)
+     - `data` 
+     - `options` 
+       - encoding Default：‘utf8’ (字符编码)
+       - mode Default：0o666
+       - flag Default：‘w’ (写入的方式)
+       - singal
+     - `callback` Function(err)
+  2. 读取：`fs.readFile(path[, options], callback)`
+     - `path` string
+     - `option` Object
+       - encoding：Default：null (字符编码)
+       - flag：Default：'r' (写入的方式)
+       - singnal
+     - `callback` Function(err, data)
+- 文件夹操作
+  - 创建文件夹
+    1. `fs.mkdir(path[, options] , callback)`(异步创建目录) 或者 `fs.mkdirSync()`(同步城建目录) 创建一个新文件夹
+    2. 判断是否存在此文件夹：`fs.existsSync(dirname)` true | false
+  - 读取文件夹中的文件
+    1. `fs.readdir(path[, options], callback)`
+       - path
+       - options
+         - encoding Default：‘utf8’
+         - withFileType Default：false
+       - callback：Function(err, files)
+         - err
+         - files：目录中文件名称的数组（当withFileType为true时才有此值）
+  - 文件重命名
+    1. `fs.rename(oddPath, newPath, callback)`
