@@ -112,7 +112,7 @@ Node输出
     - exports与module.exports的关系
       - 关系：NodeJS默认是`module.exports = exports`
         - `module.exports = exports`在模块顶层执行
-      - `module.exports`是`exports`的一个引用
+      - `exports`是`module.exports`的一个引用
 
   
 
@@ -399,3 +399,39 @@ import('./modules/foo.js')
          - files：目录中文件名称的数组（当withFileType为true时才有此值）
   - 文件重命名
     1. `fs.rename(oddPath, newPath, callback)`
+
+
+
+### events 模块
+
+`events`只对外暴露一个对象，就是`EventEmitter`，作用：**事件的发射和事件的监听**
+
+```js
+const EventEmitter = require('events')
+
+const emitter = new EventEmitter()
+```
+
+API：
+
+1. `emitter.on(eventName, liostener)` 监听事件，还可用 `addListener`
+2. `emitter.off(eventName, listener)` 移除事件监听，还可以使用 `removeListener`
+   - 移除所有事件：`emitter.removeAllListeners([eventName])` 参数可选(string)
+3. `emitter.emit(eventName[, ...args])` 触发事件，可以携带参数
+4. `emitter.eventNames()`返回当前EventEmitter对象注册的事件字符串数组
+5. `emitter.getMaxListeners()`：返回当前 EventEmitter对象的最大监听器数量，可以通过`setMaxListeners()` 来修改，默认是10
+6. `emitter.listenerCount(eventName)`：返回当前 EventEmitter对象某一个事件名称，监听器的个数
+7. `emitter.listeners(eventName)`：返回当前 EventEmitter对象某个事件监听器上所有的监听器数组
+8. `emitter.once(eventName, listener)` 只监听事件一次
+9. `emitter.prependListener(eventName, listener)` 将监听事件添加到最前面
+10. `emitter.prependOnceListener(eventName, listener)` 将监听事件添加到最前面，但是只监听一次
+11. 
+
+
+
+
+
+
+
+
+
